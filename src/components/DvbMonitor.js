@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-function DvbMonitor() {
+function DvbMonitor({stopId}) {
   const [departures, setDepartures] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -14,7 +14,7 @@ function DvbMonitor() {
             },
 
             body: JSON.stringify({
-                stopid: 33000131,
+                stopid: stopId,
                 limit: 10,
                 isarrival: true
             }),
