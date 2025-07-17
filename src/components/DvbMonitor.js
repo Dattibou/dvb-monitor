@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback} from "react";
 
-function DvbMonitor({stopId}) {
+function DvbMonitor({stopId,stopName}) {
   const [departures, setDepartures] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const fetchDepartures = async () => {
+  const fetchDepartures = useCallback(async () => {
     setLoading(true);
     try {
       const response = await fetch( "https://webapi.vvo-online.de/dm", {
@@ -33,13 +33,13 @@ function DvbMonitor({stopId}) {
         console.error("API error:", error);
     }
     setLoading(false);
-  };
+  }, [stopId]);
 
   useEffect(() => {
     fetchDepartures();
     const interval = setInterval(fetchDepartures, 10000);
     return () => clearInterval(interval);
-  }, []);
+  },[fetchDepartures]);
 
   // Helper to parse RealTime and show minutes from now (optional but recommended)
   const getMinutesFromNow = (realTimeStr) => {
@@ -56,7 +56,7 @@ function DvbMonitor({stopId}) {
 
   return (
     <div>
-      <h1>DVB Departure Monitor</h1>
+      <h1>{stopName}</h1>
       {loading ? (
         <p>Loading...</p>
       ) : (

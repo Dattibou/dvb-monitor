@@ -1,10 +1,10 @@
 import React from "react";
-import DvbMonitor from "./components/DvbMonitor";
+import DvbMonitorWrapper from "./components/DvbMonitorWrapper";
 
 function App() {
   return (
     <div className="App">
-      <DvbMonitor />
+      <DvbMonitorWrapper />
     </div>
   );
 }

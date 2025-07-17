@@ -15,6 +15,12 @@ function DvbMonitorWrapper() {
     setInputs([...inputs, ""]);
   };
 
+  const handleDeleteInput = (indexToDelete) => {
+    if (inputs.length <= 1) return; // Don't delete the last input
+    const newInputs = inputs.filter((_, index) => index !== indexToDelete);
+    setInputs(newInputs);
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     const validIds = inputs
@@ -38,6 +44,10 @@ function DvbMonitorWrapper() {
                 placeholder="e.g., 33000131"
               />
             </label>
+            {" "}
+            <button type="button" onClick={() => handleDeleteInput(index)}>
+              Delete
+            </button>
           </div>
         ))}
         <button type="button" onClick={addInputField}>+ Add Stop</button>
@@ -51,7 +61,7 @@ function DvbMonitorWrapper() {
         <div>
           <h2>Monitors</h2>
           {submittedIds.map((stopId, index) => (
-            <DvbMonitor key={index} stopId={stopId} />
+            <DvbMonitor key={index} stopId={stopId} stopName="BlaBlaBla"/>
           ))}
         </div>
       )}
