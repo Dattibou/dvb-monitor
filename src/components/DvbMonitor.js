@@ -8,17 +8,17 @@ function DvbMonitor({stopId,stopName}) {
     setLoading(true);
     try {
       const response = await fetch( "https://webapi.vvo-online.de/dm", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-
-            body: JSON.stringify({
-                stopid: stopId,
-                limit: 10,
-                isarrival: true
-            }),
-        });
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+   
+        body: JSON.stringify({
+          stopid: stopId,
+          limit: 10,
+          isarrival: true
+        }),
+      });
 
       if (!response.ok) {
         console.error("HTTP error", response.status);
@@ -26,7 +26,7 @@ function DvbMonitor({stopId,stopName}) {
         setLoading(false);
         return;
       }
-
+      
       const data = await response.json();
       setDepartures(data.Departures || []);
     } catch (error) {
