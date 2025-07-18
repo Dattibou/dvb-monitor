@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import DvbMonitor from "./DvbMonitor";
 
 function DvbMonitorWrapper() {
@@ -28,6 +28,37 @@ function DvbMonitorWrapper() {
       .filter((id) => !isNaN(id));
     setSubmittedIds(validIds);
   };
+
+  const fetchStopIds = useCallback(async () => {
+    try {
+      const response = await fetch( "https://webapi.vvo-online.de/dm", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+   
+        body: JSON.stringify({
+          stopid: stopId,
+          limit: 10,
+          isarrival: true
+        }),
+      });
+
+      if (!response.ok) {
+        console.error("HTTP error", response.status);
+        setDepartures([]);
+        setLoading(false);
+        return;
+      }
+      
+      const data = await response.json();
+      setDepartures(data.Departures || []);
+    } 
+    catch (error) {
+        console.error("API error:", error);
+    }
+
+  })
 
   return (
     <div>
