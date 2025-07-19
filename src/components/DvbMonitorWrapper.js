@@ -4,6 +4,7 @@ import DvbMonitor from "./DvbMonitor";
 function DvbMonitorWrapper() {
   const [inputs, setInputs] = useState([""]);        // Array of stop ID strings
   const [submittedIds, setSubmittedIds] = useState([]); // Final stop IDs after submit
+  const [submittedStopNames, setSubmittedStopNames] = useState([]);
 
   const handleInputChange = (index, value) => {
     const newInputs = [...inputs];
@@ -21,44 +22,51 @@ function DvbMonitorWrapper() {
     setInputs(newInputs);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const validIds = inputs
-      .map((val) => parseInt(val.trim(), 10))
-      .filter((id) => !isNaN(id));
-    setSubmittedIds(validIds);
+    await fetchStopIds();
   };
 
   const fetchStopIds = useCallback(async () => {
-    try {
-      const response = await fetch( "https://webapi.vvo-online.de/dm", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-   
-        body: JSON.stringify({
-          stopid: stopId,
-          limit: 10,
-          isarrival: true
-        }),
-      });
+    let stopIds = [];
+    let stopNames = [];
+    for (const input of inputs) {
+      try {
+        const response = await fetch("https://webapi.vvo-online.de/tr/pointfinder", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            query: input,
+            stopsOnly: true,
+          }),
+        });
+        const data = await response.json()
+        
+        if (data.Points && data.Points.length > 0) {
+          const stopId = data.Points[0].split("|")[0];
+          const stopName = data.Points[0].split("|")[3];
+          stopIds.push(stopId);
+          stopNames.push(stopName)
+        }
+        else {
+          stopIds.push(null)
+          stopNames.push(null)
+          console.warn(`No stop found for input: ${input}`);
+          continue;
+        }
 
-      if (!response.ok) {
-        console.error("HTTP error", response.status);
-        setDepartures([]);
-        setLoading(false);
-        return;
       }
-      
-      const data = await response.json();
-      setDepartures(data.Departures || []);
-    } 
-    catch (error) {
-        console.error("API error:", error);
-    }
+      catch (error) {
+        stopIds.push(null)
 
-  })
+        console.error("API error:", error);
+      }
+    }
+    setSubmittedIds(stopIds)
+    setSubmittedStopNames(stopNames)
+  }, [inputs]);
 
   return (
     <div>
@@ -67,12 +75,12 @@ function DvbMonitorWrapper() {
         {inputs.map((value, index) => (
           <div key={index}>
             <label>
-              Stop ID #{index + 1}:{" "}
+              Stop #{index + 1}:{" "}
               <input
                 type="text"
                 value={value}
                 onChange={(e) => handleInputChange(index, e.target.value)}
-                placeholder="e.g., 33000131"
+                placeholder="z.B. HBF"
               />
             </label>
             {" "}
@@ -92,7 +100,7 @@ function DvbMonitorWrapper() {
         <div>
           <h2>Monitors</h2>
           {submittedIds.map((stopId, index) => (
-            <DvbMonitor key={index} stopId={stopId} stopName="BlaBlaBla"/>
+            <DvbMonitor key={index} stopId={stopId} stopName={submittedStopNames[index]}/>
           ))}
         </div>
       )}
