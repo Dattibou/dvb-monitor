@@ -40,6 +40,7 @@ function DvbMonitorWrapper() {
           body: JSON.stringify({
             query: input,
             stopsOnly: true,
+            regionalOnly: true
           }),
         });
         const data = await response.json()

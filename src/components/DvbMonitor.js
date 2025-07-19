@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback} from "react";
 
-function DvbMonitor({stopId,stopName}) {
+function DvbMonitor({ stopId, stopName }) {
   const [departures, setDepartures] = useState([]);
   const [loading, setLoading] = useState(false);
+  
 
   const fetchDepartures = useCallback(async () => {
     setLoading(true);
@@ -39,7 +40,9 @@ function DvbMonitor({stopId,stopName}) {
     fetchDepartures();
     const interval = setInterval(fetchDepartures, 10000);
     return () => clearInterval(interval);
-  },[fetchDepartures]);
+  }, [fetchDepartures]);
+  
+  if (stopId == null || stopName == null) return null; //prevent useless mounts
 
   // Helper to parse RealTime and show minutes from now (optional but recommended)
   const getMinutesFromNow = (realTimeStr) => {
