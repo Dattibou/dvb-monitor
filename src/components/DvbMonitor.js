@@ -17,7 +17,7 @@ function DvbMonitor({ stopId, stopName }) {
         body: JSON.stringify({
           stopid: stopId,
           limit: 10,
-          isarrival: true
+          isarrival: false
         }),
       });
 
@@ -44,7 +44,7 @@ function DvbMonitor({ stopId, stopName }) {
   
   if (stopId == null || stopName == null) return null; //prevent useless mounts
 
-  // Helper to parse RealTime and show minutes from now (optional but recommended)
+  // Helper to parse RealTime and show minutes from now
   const getMinutesFromNow = (realTimeStr) => {
     if (!realTimeStr) return "N/A";
     const match = realTimeStr.match(/\/Date\((\d+)([-+]\d+)?\)\//);
@@ -57,24 +57,57 @@ function DvbMonitor({ stopId, stopName }) {
     return diffMinutes >= 0 ? diffMinutes : 0;
   };
 
+  const getTime = (realTimeStr) => {
+    if (!realTimeStr) return "N/A";
+    const match = realTimeStr.match(/\/Date\((\d+)([-+]\d+)?\)/);
+    if (!match) return "N/A";
+
+    const timestamp = parseInt(match[1], 10);
+    const date = new Date(timestamp);
+    const formatter = new Intl.DateTimeFormat("de-DE", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+      timeZone: "Europe/Berlin", // ensure proper local time
+    });
+
+    return `${formatter.format(date)} Uhr`;
+  };
+
   return (
     <div>
-      <h1>{stopName}</h1>
-      {loading ? (
-        <p>Loading...</p>
-      ) : (
-        <ul>
-          {departures.length === 0 ? (
-            <li>No departures found.</li>
-          ) : (
-            departures.map((dep, index) => (
-              <li key={index}>
-                {dep.LineName} → {dep.Direction} in {getMinutesFromNow(dep.RealTime)} min
-              </li>
-            ))
-          )}
-        </ul>
-      )}
+      <h2>{stopName}</h2>
+      {loading ? 
+        (
+          <p>Loading...</p>
+        ) : 
+          departures.length === 0 ? 
+            (
+              <p>No departures found.</p>
+            ) : 
+              (
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Line</th>
+                      <th>Direction</th>
+                      <th>Time</th>
+                      <th>In</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {departures.map((dep, index) => (
+                      <tr key={index}>
+                        <td>{dep.LineName}</td>
+                        <td>{dep.Direction}</td>
+                        <td>{getTime(dep.RealTime)}</td>
+                        <td>{getMinutesFromNow(dep.RealTime) + " min"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )
+      }
     </div>
   );
 }
