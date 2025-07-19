@@ -74,6 +74,21 @@ function DvbMonitor({ stopId, stopName }) {
     return `${formatter.format(date)} Uhr`;
   };
 
+  const getDelay = (realTimeStr, scheduledTimeStr) => {
+    if (!realTimeStr || !scheduledTimeStr) return "N/A";
+    const matchRealTimeString = realTimeStr.match(/\/Date\((\d+)([-+]\d+)?\)/);
+    const matchScheduledTimeString = scheduledTimeStr.match(/\/Date\((\d+)([-+]\d+)?\)/);
+    if (!matchRealTimeString || !matchScheduledTimeString) return "N/A";
+
+    const timestampRealTime = parseInt(matchRealTimeString[1], 10);
+    const timestampScheduledTime = parseInt(matchScheduledTimeString[1], 10);
+
+    const delayInMs = timestampRealTime - timestampScheduledTime
+    const delayInMinutes = Math.round(delayInMs / 60000)
+
+    return delayInMinutes
+  }
+
   return (
     <div>
       <h2>{stopName}</h2>
@@ -92,18 +107,25 @@ function DvbMonitor({ stopId, stopName }) {
                       <th>Line</th>
                       <th>Direction</th>
                       <th>Time</th>
-                      <th>In</th>
+                      <th>Arival In</th>
+                      <th>Delay</th>
+                      <th>Occupancy</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {departures.map((dep, index) => (
-                      <tr key={index}>
-                        <td>{dep.LineName}</td>
-                        <td>{dep.Direction}</td>
-                        <td>{getTime(dep.RealTime)}</td>
-                        <td>{getMinutesFromNow(dep.RealTime) + " min"}</td>
-                      </tr>
-                    ))}
+                    {departures.map((dep, index) => {
+                      const delay = getDelay(dep.RealTime, dep.ScheduledTime);
+                      return (
+                        <tr key={index}>
+                          <td>{dep.LineName}</td>
+                          <td>{dep.Direction}</td>
+                          <td>{getTime(dep.RealTime)}</td>
+                          <td>{getMinutesFromNow(dep.RealTime) + " min"}</td>
+                          <td>{delay !== 0 ? delay + " min" : "On Time"}</td>
+                          <td>{dep.Occupancy.replace(/([A-Z])/g, ' $1').trim()}</td>
+                        </tr>
+                      )
+                    })}
                   </tbody>
                 </table>
               )
