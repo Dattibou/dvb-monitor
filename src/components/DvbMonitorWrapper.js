@@ -1,7 +1,9 @@
 import React, { useCallback, useState } from "react";
 import DvbMonitor from "./DvbMonitor";
-import { Box, Typography, TextField, Button, IconButton, Paper, Grid, Card, CardContent } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete"
+import { Box, Typography, TextField, IconButton, Paper, Grid, Card, CardContent } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import AddIcon from "@mui/icons-material/Add";
+import DepartureBoardIcon from '@mui/icons-material/DepartureBoard';
 
 function DvbMonitorWrapper() {
   const [inputs, setInputs] = useState([""]);        // Array of stop ID strings
@@ -95,21 +97,46 @@ function DvbMonitorWrapper() {
               />
               <IconButton
                 aria-label="delete"
+                color="primary"
                 onClick={() => handleDeleteInput(index)}
-                sx={{ ml: 1 }}
+                sx={{ 
+                  ml: 1,
+                  '&:hover': {
+                    color: (theme) => theme.palette.secondary.main, // use secondary color on hover
+                  }, 
+                }}
               >
                 <DeleteIcon />
               </IconButton>
             </Box>
           ))}
 
-          <Button variant="contained" onClick={addInputField} sx={{ mr: 2 }}>
-            Add Stop
-          </Button>
+          <IconButton
+            onClick={addInputField}
+            aria-label="add stop"
+            color="primary"
+            sx={{ 
+              mr: 2,
+              "&:hover": {
+                color: (theme) => theme.palette.secondary.main,
+              } 
+            }}
+          >
+            <AddIcon />
+          </IconButton>
 
-          <Button variant="contained" type="submit" color="primary">
-            Show Monitors
-          </Button>
+          <IconButton
+            type="submit" // still submits the form
+            aria-label="show monitors"
+            color="primary"
+            sx={{
+              '&:hover': {
+                color: (theme) => theme.palette.secondary.main,
+              }
+            }}
+          >
+            <DepartureBoardIcon />
+          </IconButton>
         </Box>
       </Paper>
 
