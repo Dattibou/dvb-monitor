@@ -1,5 +1,7 @@
 import React, { useCallback, useState } from "react";
 import DvbMonitor from "./DvbMonitor";
+import { Box, Typography, TextField, Button, IconButton, Paper, Grid, Card, CardContent } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete"
 
 function DvbMonitorWrapper() {
   const [inputs, setInputs] = useState([""]);        // Array of stop ID strings
@@ -28,9 +30,11 @@ function DvbMonitorWrapper() {
   };
 
   const fetchStopIds = useCallback(async () => {
+    const cleanedInputs = inputs.filter(input => input.trim() !== "");
+    setInputs(cleanedInputs); // update state to remove empty input fields from UI
     let stopIds = [];
     let stopNames = [];
-    for (const input of inputs) {
+    for (const input of cleanedInputs) {
       try {
         const response = await fetch("https://webapi.vvo-online.de/tr/pointfinder", {
           method: "POST",
@@ -70,42 +74,67 @@ function DvbMonitorWrapper() {
   }, [inputs]);
 
   return (
-    <div>
-      <h1>DVB Monitor Setup</h1>
-      <form onSubmit={handleSubmit}>
-        {inputs.map((value, index) => (
-          <div key={index}>
-            <label>
-              Stop #{index + 1}:{" "}
-              <input
-                type="text"
+    <Paper sx={{ p: 2, minHeight: "100vh"}} elevation={0}>
+
+      <Paper sx={{ p: 2, mb: 1}} elevation={3}>
+        <Typography variant="h4" gutterBottom>
+          DVB Monitor Setup
+        </Typography>
+      
+        {/* Submitting form */}
+        <Box component="form" onSubmit={handleSubmit}>
+          {inputs.map((value, index) => (
+            <Box key={index} sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+              <TextField
+                variant="outlined"
                 value={value}
                 onChange={(e) => handleInputChange(index, e.target.value)}
                 placeholder="z.B. HBF"
+                size="small"
+                sx={{flexGrow: 1, mr: 2}}
               />
-            </label>
-            {" "}
-            <button type="button" onClick={() => handleDeleteInput(index)}>
-              Delete
-            </button>
-          </div>
-        ))}
-        <button type="button" onClick={addInputField}>+ Add Stop</button>
-        <br />
-        <button type="submit">Show Monitors</button>
-      </form>
-
-      <hr />
-
-      {submittedIds.length > 0 && (
-        <div>
-          <h2>Monitors</h2>
-          {submittedIds.map((stopId, index) => (
-            <DvbMonitor key={index} stopId={stopId} stopName={submittedStopNames[index]}/>
+              <IconButton
+                aria-label="delete"
+                onClick={() => handleDeleteInput(index)}
+                sx={{ ml: 1 }}
+              >
+                <DeleteIcon />
+              </IconButton>
+            </Box>
           ))}
-        </div>
-      )}
-    </div>
+
+          <Button variant="contained" onClick={addInputField} sx={{ mr: 2 }}>
+            Add Stop
+          </Button>
+
+          <Button variant="contained" type="submit" color="primary">
+            Show Monitors
+          </Button>
+        </Box>
+      </Paper>
+
+      <Paper sx={{ p: 2, mb: 3 }} elevation={3}>
+        {submittedIds.length > 0 && (
+          <>
+            <Typography variant="h4" gutterBottom>
+              Monitors
+            </Typography>
+
+            <Grid container spacing={2}>
+              {submittedIds.map((stopId, index) => (
+                <Grid item xs={12} sm={6} md={4} key={stopId}>
+                  <Card>
+                    <CardContent>
+                      <DvbMonitor stopId={stopId} stopName={submittedStopNames[index]} />
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          </>
+        )}
+      </Paper>
+    </Paper>
   );
 }
 
