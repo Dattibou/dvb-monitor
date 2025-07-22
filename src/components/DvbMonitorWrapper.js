@@ -1,8 +1,10 @@
 import React, { useCallback, useState } from "react";
 import DvbMonitor from "./DvbMonitor";
-import { Box, Typography, TextField, IconButton, Paper, Grid, Card, CardContent } from "@mui/material";
+import { Box, Typography, TextField, IconButton, Paper, Grid, Card, CardContent, Stack, Collapse } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AddIcon from "@mui/icons-material/Add";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import DepartureBoardIcon from '@mui/icons-material/DepartureBoard';
 
 function DvbMonitorWrapper() {
@@ -10,6 +12,8 @@ function DvbMonitorWrapper() {
   const [submittedIds, setSubmittedIds] = useState([]); // Final stop IDs after submit
   const [submittedStopNames, setSubmittedStopNames] = useState([]);
   const [warnings, setWarnings] = useState([]);
+  const [expanded, setExpanded] = useState(true);
+
 
   const handleInputChange = (index, value) => {
     const newInputs = [...inputs];
@@ -80,69 +84,92 @@ function DvbMonitorWrapper() {
     setWarnings(newWarnings)
   }, [inputs]);
 
+  const handleToggle = () => {
+    setExpanded((prev) => !prev);
+  };
+
   return (
     <Paper sx={{ p: 2, minHeight: "100vh"}} elevation={0}>
 
       <Paper sx={{ p: 2, mb: 1}} elevation={3}>
-        <Typography variant="h4" gutterBottom>
-          DVB Monitor Setup
-        </Typography>
-      
-        {/* Submitting form */}
-        <Box component="form" onSubmit={handleSubmit}>
-          {inputs.map((value, index) => (
-            <Box key={index} sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-              <TextField
-                variant="outlined"
-                value={value}
-                onChange={(e) => handleInputChange(index, e.target.value)}
-                placeholder="z.B. HBF"
-                size="small"
-                sx={{flexGrow: 1, mr: 2}}
-              />
-              <IconButton
-                aria-label="delete"
-                color="primary"
-                onClick={() => handleDeleteInput(index)}
-                sx={{ 
-                  ml: 1,
-                  '&:hover': {
-                    color: (theme) => theme.palette.secondary.main, // use secondary color on hover
-                  }, 
-                }}
-              >
-                <DeleteIcon />
-              </IconButton>
-            </Box>
-          ))}
-
+        <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"}>
+          <Typography variant="h4" gutterBottom>
+            DVB Monitor Settings
+          </Typography>
           <IconButton
-            onClick={addInputField}
-            aria-label="add stop"
+            onClick={handleToggle}
+            size="small"
             color="primary"
             sx={{ 
-              mr: 2,
-              "&:hover": {
-                color: (theme) => theme.palette.secondary.main,
-              } 
-            }}
-          >
-            <AddIcon />
-          </IconButton>
-
-          <IconButton
-            type="submit" // still submits the form
-            aria-label="show monitors"
-            color="primary"
-            sx={{
+              ml: 1,
               '&:hover': {
-                color: (theme) => theme.palette.secondary.main,
-              }
+                color: (theme) => theme.palette.secondary.main, // use secondary color on hover
+              }, 
             }}
           >
-            <DepartureBoardIcon />
+            {expanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
           </IconButton>
-        </Box>
+        </Stack>
+        
+      
+        {/* Submitting form */}
+        <Collapse in={expanded}>
+          <Box component="form" onSubmit={handleSubmit}>
+            {inputs.map((value, index) => (
+              <Box key={index} sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+                <TextField
+                  variant="outlined"
+                  value={value}
+                  onChange={(e) => handleInputChange(index, e.target.value)}
+                  placeholder="z.B. HBF"
+                  size="small"
+                  sx={{flexGrow: 1, mr: 2}}
+                />
+                <IconButton
+                  aria-label="delete"
+                  color="primary"
+                  onClick={() => handleDeleteInput(index)}
+                  sx={{ 
+                    ml: 1,
+                    '&:hover': {
+                      color: (theme) => theme.palette.secondary.main, // use secondary color on hover
+                    }, 
+                  }}
+                >
+                  <DeleteIcon />
+                </IconButton>
+              </Box>
+            ))}
+
+            <IconButton
+              onClick={addInputField}
+              aria-label="add stop"
+              color="primary"
+              sx={{ 
+                mr: 2,
+                "&:hover": {
+                  color: (theme) => theme.palette.secondary.main,
+                } 
+              }}
+            >
+              <AddIcon />
+            </IconButton>
+
+            <IconButton
+              type="submit" // still submits the form
+              aria-label="show monitors"
+              color="primary"
+              sx={{
+                '&:hover': {
+                  color: (theme) => theme.palette.secondary.main,
+                }
+              }}
+            >
+              <DepartureBoardIcon />
+            </IconButton>
+          </Box>
+        </Collapse>
+        
       </Paper>
 
       {warnings.length > 0 && (
@@ -157,21 +184,17 @@ function DvbMonitorWrapper() {
 
       {submittedIds.filter(Boolean).length > 0 && (
         <Paper sx={{ p: 2, mb: 3 }} elevation={3}>
-              <Typography variant="h4" gutterBottom>
-                Monitors
-              </Typography>
-
-              <Grid container spacing={2}>
-                {submittedIds.map((stopId, index) => (
-                  <Grid item xs={12} sm={6} md={4} key={stopId}>
-                    <Card>
-                      <CardContent>
-                        <DvbMonitor stopId={stopId} stopName={submittedStopNames[index]} />
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                ))}
+          <Grid container spacing={2}>
+            {submittedIds.map((stopId, index) => (
+              <Grid item xs={12} sm={6} md={4} key={stopId}>
+                <Card>
+                  <CardContent>
+                    <DvbMonitor stopId={stopId} stopName={submittedStopNames[index]} />
+                  </CardContent>
+                </Card>
               </Grid>
+            ))}
+          </Grid>
         </Paper>
       )}
     </Paper>

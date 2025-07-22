@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback} from "react";
-import { Typography, CircularProgress, Table, TableHead, TableRow, TableCell, TableBody } from "@mui/material";
+import { Typography, CircularProgress, Table, TableHead, TableRow, TableCell, TableBody, Box } from "@mui/material";
+import CircleIcon from '@mui/icons-material/Circle';
 
 function DvbMonitor({ stopId, stopName }) {
   const [departures, setDepartures] = useState([]);
@@ -47,7 +48,7 @@ function DvbMonitor({ stopId, stopName }) {
 
   // Helper to parse RealTime and show minutes from now
   const getMinutesFromNow = (realTimeStr) => {
-    if (!realTimeStr) return "N/A";
+    if (!realTimeStr) return "Cancelled";
     const match = realTimeStr.match(/\/Date\((\d+)([-+]\d+)?\)\//);
     if (!match) return "N/A";
 
@@ -59,7 +60,7 @@ function DvbMonitor({ stopId, stopName }) {
   };
 
   const getTime = (realTimeStr) => {
-    if (!realTimeStr) return "N/A";
+    if (!realTimeStr) return "Cancelled";
     const match = realTimeStr.match(/\/Date\((\d+)([-+]\d+)?\)/);
     if (!match) return "N/A";
 
@@ -76,7 +77,7 @@ function DvbMonitor({ stopId, stopName }) {
   };
 
   const getDelay = (realTimeStr, scheduledTimeStr) => {
-    if (!realTimeStr || !scheduledTimeStr) return "N/A";
+    if (!realTimeStr || !scheduledTimeStr) return "Cancelled";
     const matchRealTimeString = realTimeStr.match(/\/Date\((\d+)([-+]\d+)?\)/);
     const matchScheduledTimeString = scheduledTimeStr.match(/\/Date\((\d+)([-+]\d+)?\)/);
     if (!matchRealTimeString || !matchScheduledTimeString) return "N/A";
@@ -92,7 +93,7 @@ function DvbMonitor({ stopId, stopName }) {
 
   return (
     <>
-      <Typography variant="h6" gutterBottom>
+      <Typography variant="h5" gutterBottom align="center">
         {stopName}
       </Typography>
 
@@ -104,83 +105,91 @@ function DvbMonitor({ stopId, stopName }) {
         ) : departures.length === 0 ? (
           <Typography variant="body2">No departures found.</Typography>
         ) : (
-          <Table size="small">
-            <TableHead>
-              <TableRow>
-                <TableCell>Line</TableCell>
-                <TableCell>Direction</TableCell>
-                <TableCell>Time</TableCell>
-                <TableCell>Arrival In</TableCell>
-                <TableCell>Delay</TableCell>
-                <TableCell>Occupancy</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {departures.map((dep, index) => {
-                const delay = getDelay(dep.RealTime, dep.ScheduledTime);
-                return (
-                  <TableRow key={index}>
-                    <TableCell>{dep.LineName}</TableCell>
-                    <TableCell>{dep.Direction}</TableCell>
-                    <TableCell>{getTime(dep.RealTime)}</TableCell>
-                    <TableCell>{getMinutesFromNow(dep.RealTime)} min</TableCell>
-                    <TableCell>
-                      {delay !== 0 ? `${delay} min` : 'On Time'}
-                    </TableCell>
-                    <TableCell>
-                      {dep.Occupancy.replace(/([A-Z])/g, ' $1').trim()}
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
+          <Box sx={{ overflowX: 'auto' }}>
+            <Table size="medium" sx={{ '& td, & th': { fontSize: '1rem' } }}>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Line</TableCell>
+                  <TableCell>Direction</TableCell>
+                  <TableCell>Time</TableCell>
+                  <TableCell>Arrival In</TableCell>
+                  <TableCell>Delay</TableCell>
+                  <TableCell>Occupancy</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {departures.map((dep, index) => {
+                  const delay = getDelay(dep.RealTime, dep.ScheduledTime);
+                  return (
+                    <TableRow key={index}>
+                      <TableCell>{dep.LineName}</TableCell>
+                      <TableCell>{dep.Direction}</TableCell>
+                      <TableCell>
+                        <Typography
+                          color={
+                            typeof getMinutesFromNow(dep.RealTime) === 'number'
+                              ? 'textPrimary'
+                              : 'secondary'
+                          }
+                        >
+                          {getTime(dep.RealTime)}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography
+                          color={
+                            typeof getMinutesFromNow(dep.RealTime) === 'number'
+                              ? 'textPrimary'
+                              : 'secondary'
+                          }
+                        >
+                          {typeof getMinutesFromNow(dep.RealTime) === 'number'
+                            ? `${getMinutesFromNow(dep.RealTime)} min`
+                              : getMinutesFromNow(dep.RealTime)}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Typography
+                          color={
+                            typeof delay === 'number'
+                              ? delay > 0
+                                ? 'secondary'
+                                : delay < 0
+                                ? 'primary'
+                                : 'textPrimary'
+                              : 'secondary'
+                          }
+                        >
+                          {typeof delay === 'number'
+                            ? `${delay > 0 ? '+' : ''}${delay} min`
+                            : delay}
+                        </Typography>
+                      </TableCell>
+                      <TableCell>
+                        <Box display="flex" alignItems="center" justifyContent="center">
+                          <CircleIcon
+                            fontSize="small"
+                            sx={{
+                              color:
+                                dep.Occupancy === 'ManySeats'
+                                  ? 'green'
+                                  : dep.Occupancy === 'StandingOnly'
+                                    ? 'red'
+                                    : 'goldenrod', // for Unknown
+                            }}
+                          />
+                        </Box>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>    
+          </Box>
+          
       )}
     </>
   )
-/*   return (
-    <div>
-      <h2>{stopName}</h2>
-      {loading ? 
-        (
-          <p>Loading...</p>
-        ) : 
-          departures.length === 0 ? 
-            (
-              <p>No departures found.</p>
-            ) : 
-              (
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Line</th>
-                      <th>Direction</th>
-                      <th>Time</th>
-                      <th>Arival In</th>
-                      <th>Delay</th>
-                      <th>Occupancy</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {departures.map((dep, index) => {
-                      const delay = getDelay(dep.RealTime, dep.ScheduledTime);
-                      return (
-                        <tr key={index}>
-                          <td>{dep.LineName}</td>
-                          <td>{dep.Direction}</td>
-                          <td>{getTime(dep.RealTime)}</td>
-                          <td>{getMinutesFromNow(dep.RealTime) + " min"}</td>
-                          <td>{delay !== 0 ? delay + " min" : "On Time"}</td>
-                          <td>{dep.Occupancy.replace(/([A-Z])/g, ' $1').trim()}</td>
-                        </tr>
-                      )
-                    })}
-                  </tbody>
-                </table>
-              )
-      }
-    </div>
-  ); */
 }
 
 export default DvbMonitor;
