@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback} from "react";
+import { Typography, CircularProgress, Table, TableHead, TableRow, TableCell, TableBody } from "@mui/material";
 
 function DvbMonitor({ stopId, stopName }) {
   const [departures, setDepartures] = useState([]);
@@ -90,6 +91,54 @@ function DvbMonitor({ stopId, stopName }) {
   }
 
   return (
+    <>
+      <Typography variant="h6" gutterBottom>
+        {stopName}
+      </Typography>
+
+      {loading ? (
+          <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <CircularProgress size={20} />
+            <Typography variant="body2">Loading...</Typography>
+          </span>
+        ) : departures.length === 0 ? (
+          <Typography variant="body2">No departures found.</Typography>
+        ) : (
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell>Line</TableCell>
+                <TableCell>Direction</TableCell>
+                <TableCell>Time</TableCell>
+                <TableCell>Arrival In</TableCell>
+                <TableCell>Delay</TableCell>
+                <TableCell>Occupancy</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {departures.map((dep, index) => {
+                const delay = getDelay(dep.RealTime, dep.ScheduledTime);
+                return (
+                  <TableRow key={index}>
+                    <TableCell>{dep.LineName}</TableCell>
+                    <TableCell>{dep.Direction}</TableCell>
+                    <TableCell>{getTime(dep.RealTime)}</TableCell>
+                    <TableCell>{getMinutesFromNow(dep.RealTime)} min</TableCell>
+                    <TableCell>
+                      {delay !== 0 ? `${delay} min` : 'On Time'}
+                    </TableCell>
+                    <TableCell>
+                      {dep.Occupancy.replace(/([A-Z])/g, ' $1').trim()}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+      )}
+    </>
+  )
+/*   return (
     <div>
       <h2>{stopName}</h2>
       {loading ? 
@@ -131,7 +180,7 @@ function DvbMonitor({ stopId, stopName }) {
               )
       }
     </div>
-  );
+  ); */
 }
 
 export default DvbMonitor;
