@@ -26,7 +26,6 @@ function DvbMonitorWrapper() {
   };
 
   const handleDeleteInput = (indexToDelete) => {
-    if (inputs.length <= 1) return; // Don't delete the last input
     const newInputs = inputs.filter((_, index) => index !== indexToDelete);
     setInputs(newInputs);
   };

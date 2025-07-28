@@ -106,22 +106,22 @@ function DvbMonitor({ stopId, stopName }) {
           <Typography variant="body2">No departures found.</Typography>
         ) : (
           <Box sx={{ overflowX: 'auto' }}>
-            <Table size="medium" sx={{ '& td, & th': { fontSize: '1rem' } }}>
+            <Table size="small" sx={{ '& td, & th': { fontSize: '1rem' } }}>
               <TableHead>
                 <TableRow>
-                  <TableCell>Line</TableCell>
-                  <TableCell>Direction</TableCell>
-                  <TableCell>Time</TableCell>
-                  <TableCell>Arrival In</TableCell>
-                  <TableCell>Delay</TableCell>
-                  <TableCell>Occupancy</TableCell>
+                  <TableCell sx={{ fontWeight:"bold" }}>Line</TableCell>
+                  <TableCell sx={{ fontWeight:"bold" }}>Direction</TableCell>
+                  <TableCell sx={{ fontWeight:"bold" }}>Time</TableCell>
+                  <TableCell sx={{ fontWeight:"bold" }}>Arrival In</TableCell>
+                  <TableCell sx={{ fontWeight:"bold" }}>Delay</TableCell>
+                  <TableCell sx={{ fontWeight:"bold" }}>Occupancy</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {departures.map((dep, index) => {
                   const delay = getDelay(dep.RealTime, dep.ScheduledTime);
                   return (
-                    <TableRow key={index}>
+                    <TableRow key={index} sx={{ opacity: 0.8 }}>
                       <TableCell>{dep.LineName}</TableCell>
                       <TableCell>{dep.Direction}</TableCell>
                       <TableCell>
