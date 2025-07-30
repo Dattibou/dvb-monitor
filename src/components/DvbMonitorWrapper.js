@@ -125,6 +125,18 @@ function DvbMonitorWrapper() {
                   sx={{flexGrow: 1, mr: 2}}
                 />
                 <IconButton
+                  type="submit"
+                  aria-label="show monitors"
+                  color="primary"
+                  sx={{
+                    '&:hover': {
+                      color: (theme) => theme.palette.secondary.main,
+                    }
+                  }}
+                >
+                  <DepartureBoardIcon />
+                </IconButton>
+                <IconButton
                   aria-label="delete"
                   color="primary"
                   onClick={() => handleDeleteInput(index)}
@@ -152,19 +164,6 @@ function DvbMonitorWrapper() {
               }}
             >
               <AddIcon />
-            </IconButton>
-
-            <IconButton
-              type="submit" // still submits the form
-              aria-label="show monitors"
-              color="primary"
-              sx={{
-                '&:hover': {
-                  color: (theme) => theme.palette.secondary.main,
-                }
-              }}
-            >
-              <DepartureBoardIcon />
             </IconButton>
           </Box>
         </Collapse>
