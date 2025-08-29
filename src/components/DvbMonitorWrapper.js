@@ -9,10 +9,9 @@ import DepartureBoardIcon from '@mui/icons-material/DepartureBoard';
 
 function DvbMonitorWrapper() {
   const [inputs, setInputs] = useState([""]);        // Array of stop ID strings
-  const [submittedIds, setSubmittedIds] = useState([]); // Final stop IDs after submit
-  const [submittedStopNames, setSubmittedStopNames] = useState([]);
   const [warnings, setWarnings] = useState([]);
   const [expanded, setExpanded] = useState(true);
+  const [submittedStops, setSubmittedStops] = useState(new Map());
 
 
   const handleInputChange = (index, value) => {
@@ -33,55 +32,45 @@ function DvbMonitorWrapper() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     // Check if there's at least one non-empty input
-    const hasValidInput = inputs.some(input => input.trim() !== "");
-    if (!hasValidInput) {
+    const cleanedInputs = inputs.filter((input) => input.trim() !== "");
+    if (cleanedInputs.length === 0) {
       alert("Please enter at least one valid stop.");
-      return; // stop submission if no valid input
+      return;
     }
-    await fetchStopIds();
-  };
+    setInputs(cleanedInputs);
+    await fetchStopIds(cleanedInputs);
+  }
 
-  const fetchStopIds = useCallback(async () => {
-    const cleanedInputs = inputs.filter(input => input.trim() !== "");
-    setInputs(cleanedInputs); // update state to remove empty input fields from UI
-    
-    let stopIds = [];
-    let stopNames = [];
+  const fetchStopIds = useCallback(async (inputList) => {
+    setWarnings([]);
+    let newMap = new Map();
     let newWarnings = [];
-    for (const input of cleanedInputs) {
+
+    for (const input of inputList) {
       try {
         const response = await fetch("https://webapi.vvo-online.de/tr/pointfinder", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            query: input,
-            stopsOnly: true,
-            regionalOnly: true
-          }),
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query: input, stopsOnly: true, regionalOnly: true }),
         });
-        const data = await response.json()
-        
+
+        const data = await response.json();
+
         if (data.Points && data.Points.length > 0) {
           const stopId = data.Points[0].split("|")[0];
           const stopName = data.Points[0].split("|")[3];
-          stopIds.push(stopId);
-          stopNames.push(stopName)
-        }
-        else {
+          newMap.set(stopId, stopName);
+        } else {
           newWarnings.push(`No stop found for input: "${input}"`);
         }
-
-      }
-      catch (error) {
+      } catch (error) {
         console.error("API error:", error);
       }
     }
-    setSubmittedIds(stopIds)
-    setSubmittedStopNames(stopNames)
-    setWarnings(newWarnings)
-  }, [inputs]);
+
+    setSubmittedStops(newMap);
+    setWarnings(newWarnings);
+  }, []);
 
   const handleToggle = () => {
     setExpanded((prev) => !prev);
@@ -180,14 +169,14 @@ function DvbMonitorWrapper() {
         </Paper>
       )}
 
-      {submittedIds.filter(Boolean).length > 0 && (
+      {submittedStops.size > 0 && (
         <Paper sx={{ p: 2, mb: 3 }} elevation={3}>
           <Grid container spacing={2}>
-            {submittedIds.map((stopId, index) => (
+            {Array.from(submittedStops.entries()).map(([stopId, stopName]) => (
               <Grid item xs={12} sm={6} md={4} key={stopId}>
                 <Card>
                   <CardContent>
-                    <DvbMonitor stopId={stopId} stopName={submittedStopNames[index]} />
+                    <DvbMonitor stopId={stopId} stopName={stopName} />
                   </CardContent>
                 </Card>
               </Grid>
