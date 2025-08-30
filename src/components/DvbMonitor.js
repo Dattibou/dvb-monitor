@@ -171,11 +171,13 @@ function DvbMonitor({ stopId, stopName }) {
                             fontSize="small"
                             sx={{
                               color:
-                                dep.Occupancy === 'ManySeats'
-                                  ? 'green'
-                                  : dep.Occupancy === 'StandingOnly'
-                                    ? 'red'
-                                    : 'goldenrod', // for Unknown
+                                typeof getMinutesFromNow(dep.RealTime) === 'string'
+                                  ? 'red'
+                                  : dep.Occupancy === 'ManySeats'
+                                    ? 'green'
+                                    : dep.Occupancy === 'StandingOnly'
+                                      ? 'red'
+                                      : 'goldenrod', // for Unknown
                             }}
                           />
                         </Box>
