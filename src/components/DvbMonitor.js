@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback} from "react";
 import { Typography, CircularProgress, Table, TableHead, TableRow, TableCell, TableBody, Box } from "@mui/material";
 import CircleIcon from '@mui/icons-material/Circle';
 
-function DvbMonitor({ stopId, stopName }) {
+function DvbMonitor({ stopId }) {
   const [departures, setDepartures] = useState([]);
   const [loading, setLoading] = useState(false);
   
@@ -40,11 +40,11 @@ function DvbMonitor({ stopId, stopName }) {
 
   useEffect(() => {
     fetchDepartures();
-    const interval = setInterval(fetchDepartures, 10000);
+    const interval = setInterval(fetchDepartures, 30000);
     return () => clearInterval(interval);
   }, [fetchDepartures]);
   
-  if (stopId == null || stopName == null) return null; //prevent useless mounts
+  if (stopId == null ) return null; //prevent useless mounts
 
   // Helper to parse RealTime and show minutes from now
   const getMinutesFromNow = (realTimeStr) => {
@@ -93,10 +93,6 @@ function DvbMonitor({ stopId, stopName }) {
 
   return (
     <>
-      <Typography variant="h5" gutterBottom align="center">
-        {stopName}
-      </Typography>
-
       {loading ? (
           <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <CircularProgress size={20} />

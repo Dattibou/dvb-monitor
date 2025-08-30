@@ -149,6 +149,7 @@ function DvbMonitorWrapper() {
                 <Card>
                   {/* X Button in the top right */}
                   <CardHeader
+                    title={stopName}
                       action={
                         <IconButton
                           size="small"
@@ -167,7 +168,7 @@ function DvbMonitorWrapper() {
                       }
                     />
                   <CardContent>
-                    <DvbMonitor stopId={stopId} stopName={stopName} />
+                    <DvbMonitor stopId={stopId} />
                   </CardContent>
                 </Card>
               </Grid>
