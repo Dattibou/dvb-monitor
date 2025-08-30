@@ -1,11 +1,10 @@
 import React, { useCallback, useState } from "react";
 import DvbMonitor from "./DvbMonitor";
-import { Box, Typography, TextField, IconButton, Paper, Grid, Card, CardContent, Stack, Collapse } from "@mui/material";
+import { Box, Typography, TextField, IconButton, Paper, Grid, Card, CardContent, Stack, Collapse, CardHeader } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
-import AddIcon from "@mui/icons-material/Add";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import DepartureBoardIcon from '@mui/icons-material/DepartureBoard';
+import SearchIcon from '@mui/icons-material/Search';
 
 function DvbMonitorWrapper() {
   const [inputs, setInputs] = useState([""]);        // Array of stop ID strings
@@ -20,14 +19,11 @@ function DvbMonitorWrapper() {
     setInputs(newInputs);
   };
 
-  const addInputField = () => {
-    setInputs([...inputs, ""]);
-  };
-
-  const handleDeleteInput = (indexToDelete) => {
-    const newInputs = inputs.filter((_, index) => index !== indexToDelete);
-    setInputs(newInputs);
-  };
+  const handleDeleteStop = (stopIdToDelete) => {
+    const newMap = new Map(submittedStops);
+    newMap.delete(stopIdToDelete);
+    setSubmittedStops(newMap);
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -43,7 +39,7 @@ function DvbMonitorWrapper() {
 
   const fetchStopIds = useCallback(async (inputList) => {
     setWarnings([]);
-    let newMap = new Map();
+    let newMap = new Map(submittedStops);
     let newWarnings = [];
 
     for (const input of inputList) {
@@ -70,7 +66,7 @@ function DvbMonitorWrapper() {
 
     setSubmittedStops(newMap);
     setWarnings(newWarnings);
-  }, []);
+  }, [submittedStops]);
 
   const handleToggle = () => {
     setExpanded((prev) => !prev);
@@ -82,7 +78,7 @@ function DvbMonitorWrapper() {
       <Paper sx={{ p: 2, mb: 1}} elevation={3}>
         <Stack direction={"row"} alignItems={"center"} justifyContent={"space-between"}>
           <Typography variant="h4" gutterBottom>
-            DVB Monitor Settings
+            DVB Stop Monitor 
           </Typography>
           <IconButton
             onClick={handleToggle}
@@ -111,7 +107,11 @@ function DvbMonitorWrapper() {
                   onChange={(e) => handleInputChange(index, e.target.value)}
                   placeholder="z.B. HBF"
                   size="small"
-                  sx={{flexGrow: 1, mr: 2}}
+                  sx={{
+                    flexGrow: 1,       // fills available space
+                    mr: 2,
+                    maxWidth: 500,     
+                  }}
                 />
                 <IconButton
                   type="submit"
@@ -123,40 +123,12 @@ function DvbMonitorWrapper() {
                     }
                   }}
                 >
-                  <DepartureBoardIcon />
-                </IconButton>
-                <IconButton
-                  aria-label="delete"
-                  color="primary"
-                  onClick={() => handleDeleteInput(index)}
-                  sx={{ 
-                    ml: 1,
-                    '&:hover': {
-                      color: (theme) => theme.palette.secondary.main, // use secondary color on hover
-                    }, 
-                  }}
-                >
-                  <DeleteIcon />
+                  <SearchIcon />
                 </IconButton>
               </Box>
             ))}
-
-            <IconButton
-              onClick={addInputField}
-              aria-label="add stop"
-              color="primary"
-              sx={{ 
-                mr: 2,
-                "&:hover": {
-                  color: (theme) => theme.palette.secondary.main,
-                } 
-              }}
-            >
-              <AddIcon />
-            </IconButton>
           </Box>
         </Collapse>
-        
       </Paper>
 
       {warnings.length > 0 && (
@@ -175,6 +147,25 @@ function DvbMonitorWrapper() {
             {Array.from(submittedStops.entries()).map(([stopId, stopName]) => (
               <Grid item xs={12} sm={6} md={4} key={stopId}>
                 <Card>
+                  {/* X Button in the top right */}
+                  <CardHeader
+                      action={
+                        <IconButton
+                          size="small"
+                          onClick={() => handleDeleteStop(stopId)}
+                          color = "primary"  
+                          aria-label={`remove ${stopName}`}
+                          sx={{ 
+                            ml: 1,
+                            '&:hover': {
+                              color: (theme) => theme.palette.secondary.main, // use secondary color on hover
+                            }, 
+                          }}
+                        >
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      }
+                    />
                   <CardContent>
                     <DvbMonitor stopId={stopId} stopName={stopName} />
                   </CardContent>
