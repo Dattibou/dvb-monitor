@@ -35,6 +35,7 @@ function DvbMonitorWrapper() {
     }
     setInputs(cleanedInputs);
     await fetchStopIds(cleanedInputs);
+    setInputs([""]);
   }
 
   const fetchStopIds = useCallback(async (inputList) => {
