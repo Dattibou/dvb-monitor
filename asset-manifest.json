@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/Dattibou/dvb-monitor/static/css/main.e6c13ad2.css",
-    "main.js": "/Dattibou/dvb-monitor/static/js/main.b8fcda10.js",
-    "static/js/453.a6e57196.chunk.js": "/Dattibou/dvb-monitor/static/js/453.a6e57196.chunk.js",
-    "index.html": "/Dattibou/dvb-monitor/index.html",
-    "main.e6c13ad2.css.map": "/Dattibou/dvb-monitor/static/css/main.e6c13ad2.css.map",
-    "main.b8fcda10.js.map": "/Dattibou/dvb-monitor/static/js/main.b8fcda10.js.map",
-    "453.a6e57196.chunk.js.map": "/Dattibou/dvb-monitor/static/js/453.a6e57196.chunk.js.map"
+    "main.css": "/dvb-monitor/static/css/main.e6c13ad2.css",
+    "main.js": "/dvb-monitor/static/js/main.8a9dab5b.js",
+    "static/js/453.a6e57196.chunk.js": "/dvb-monitor/static/js/453.a6e57196.chunk.js",
+    "index.html": "/dvb-monitor/index.html",
+    "main.e6c13ad2.css.map": "/dvb-monitor/static/css/main.e6c13ad2.css.map",
+    "main.8a9dab5b.js.map": "/dvb-monitor/static/js/main.8a9dab5b.js.map",
+    "453.a6e57196.chunk.js.map": "/dvb-monitor/static/js/453.a6e57196.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.e6c13ad2.css",
-    "static/js/main.b8fcda10.js"
+    "static/js/main.8a9dab5b.js"
   ]
 }
